@@ -1,8 +1,10 @@
 #coding=utf8
 
-TRAIN_FILE = 'data/QNLI/train.tsv'
-DEV_FILE = 'data/QNLI/dev.tsv'
-TEST_FILE = 'data/QNLI/test.tsv'
+DATASETPATH = {
+    'train': 'data/QNLI/train.tsv',
+    'dev': 'data/QNLI/dev.tsv',
+    'test': 'data/QNLI/test.tsv'
+}
 
 BERT_CLS = '[CLS]'
 BERT_SEP = '[SEP]'
