@@ -1,0 +1,1 @@
+python data/download_glue_data.py --data_dir data --tasks QNLI
