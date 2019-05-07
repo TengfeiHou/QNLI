@@ -1,0 +1,1 @@
+python data/download_pretrained_bert.py --proxy https://127.0.0.1:1080
