@@ -96,8 +96,6 @@ def main(arguments):
         os.mkdir(args.data_dir)
     tasks = get_vocabs_and_models(args.model)
 
-    if args.proxy:
-        print('Download all files using proxy %s ...' % (args.proxy))
     for name, vocab, model in tasks:
         download(vocab, args.data_dir, proxy=args.proxy)
         download(model, args.data_dir, proxy=args.proxy)
