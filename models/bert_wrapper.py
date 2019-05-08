@@ -15,6 +15,7 @@ class BertBinaryClassification(nn.Module):
         self.dropout = nn.Dropout(p=dropout)
         self.bce = bce
         self.label_smoothing = label_smoothing
+        self.reduction = reduction
         if self.label_smoothing > 0:
             self.classifier = nn.Linear(BERT_HIDDEN_SIZE[name], (1 if self.bce else 2))
             self.loss_function = LabelSmoothingBCE(smoothing=label_smoothing, reduction=reduction)
@@ -25,6 +26,10 @@ class BertBinaryClassification(nn.Module):
             self.classifier = nn.Linear(BERT_HIDDEN_SIZE[name], 2)
             self.loss_function = set_nllloss(reduction=reduction)
         self.set_bert_grad(bert_grad)
+
+    def init_weights(self, initrange=0.1):
+        self.classifier.weight.data.uniform_(-initrange, initrange)
+        self.classifier.bias.data.uniform_(-initrange, initrange)
 
     def forward(self, word_ids, segment_ids, masks, label):
         _, pooled_output = self.bert(word_ids, segment_ids, masks, output_all_encoded_layers=False)
@@ -58,10 +63,10 @@ class BertBinaryClassification(nn.Module):
             p.requires_grad = requires_grad
     
     def bert_parameters(self):
-        params = []
-        for each in self.bert.parameters():
-            params.append(each)
-        return params
+        return list(self.bert.parameters())
+
+    def clsfy_parameters(self):
+        return list(self.classifier.parameters())
 
     def load_model(self, load_dir):
         if self.device.type == 'cuda':
