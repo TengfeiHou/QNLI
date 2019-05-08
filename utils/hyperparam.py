@@ -1,7 +1,7 @@
 #coding=utf8
 
 def set_hyperparam_path(options):
-    task_path = 'task_QNLI__%s' % (options.bert)
+    task_path = 'exp/task_QNLI__%s' % (options.bert)
 
     exp_name = ''
     exp_name += 'optim_%s__' % (options.optim)
@@ -14,6 +14,6 @@ def set_hyperparam_path(options):
     exp_name += 'loss_%s__' % (options.loss)
     exp_name += 'reduce_%s' % (options.reduction)
     exp_name += 'me_%s__' % (options.max_epoch)
-    exp_name += 'smooth' if options.label_smoothing else ''
+    exp_name += 'smooth_%s' % (option.label_smoothing)
 
     return os.path.join(task_path, exp_name)

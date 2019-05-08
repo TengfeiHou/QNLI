@@ -16,7 +16,7 @@ max_epoch=100
 deviceId=0
 seed=999
 
-python scripts/qnli_classifier_bert.py --bert $bert --loss $loss --reduction $reduction --label_smoothing $label_smoothing
-    --lr $lr --weight_decay $l2 --batch_size $batch_size --dropout $drop
-    --optim $optim --warmup $warmup --schedule $schedule --init_weights $init_weights
+python scripts/qnli_classifier_bert.py --bert $bert --loss $loss --reduction $reduction --label_smoothing $label_smoothing \
+    --lr $lr --weight_decay $l2 --batch_size $batch_size --dropout $drop \
+    --optim $optim --warmup $warmup --schedule $schedule --init_weights $init_weights \
     --max_epoch $max_epoch --deviceId $deviceId --seed $seed

@@ -3,6 +3,7 @@ import time
 import numpy as np
 from utils.writer import write_results
 from utils.batch import to_device
+
 class Solver():
 
     def __init__(self, model, optimizer, exp_path, logger, device=None):
