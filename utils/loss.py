@@ -69,7 +69,11 @@ class LabelSmoothingBCE(nn.Module):
         self.smoothing = smoothing
         
     def forward(self, x, target):
-        assert x.size(1) == 2
+        if x.dim() == 2:
+            assert x.size(1) == 2
+        else:
+            neg_x = 1 - x
+            x = torch.cat([neg_x.unsqueeze(dim=1), x.unsqueeze(dim=1)], dim=1)
         true_dist = x.clone()
         true_dist.fill_(self.smoothing / 2)
         src = x.clone().fill_(self.confidence)
