@@ -47,7 +47,7 @@ class LabelSmoothingBCE(nn.Module):
         Implement label smoothing BCE loss.
     """
     def __init__(self, smoothing=0.1, reduction='mean'):
-        super(LabelSmoothing, self).__init__()
+        super(LabelSmoothingBCE, self).__init__()
         if float(torch.__version__[:3]) < 0.4 or torch.__version__ == '0.4.0':
             if reduction == 'none':
                 self.criterion = nn.KLDivLoss(reduce=False)
@@ -75,9 +75,8 @@ class LabelSmoothingBCE(nn.Module):
             neg_x = 1 - x
             x = torch.cat([neg_x.unsqueeze(dim=1), x.unsqueeze(dim=1)], dim=1)
             x = torch.log(x)
-        true_dist = x.clone()
-        true_dist.fill_(self.smoothing / 2)
-        src = x.clone().fill_(self.confidence)
-        true_dist.scatter_add_(1, target.unsqueeze(1).long(), src)
+        true_dist = torch.zeros_like(x)
+        true_dist.scatter_(1, target.unsqueeze(1).long(), self.confidence)
+        true_dist += self.smoothing / 2
         true_dist = true_dist.detach()
         return self.criterion(x, true_dist)

@@ -1,5 +1,5 @@
 # coding=utf8
-import time
+import time, os
 import numpy as np
 from utils.writer import write_results
 from utils.batch import to_device
@@ -43,9 +43,11 @@ class QNLISolver(Solver):
             "dev_loss": 1e12, "train_losses": []
         }
 
-    def train_and_decode(train_loader, dev_loader, test_loader, max_epoch):
+    def train_and_decode(self, train_loader, dev_loader, test_loader, max_epoch):
 
         for epoch in range(max_epoch):
+            start_time = time.time()
+            epoch_loss = 0.0
             self.model.train()
             for data_batch in train_loader:
                 self.optimizer['all'].zero_grad()
@@ -53,27 +55,33 @@ class QNLISolver(Solver):
                 loss = self.model(word_ids, segment_ids, masks, labels)
                 loss.backward()
                 self.optimizer['all'].step()
-                self.history['train_losses'].append(loss.item())
+                epoch_loss += loss.item()
+            self.history['train_losses'].append(epoch_loss)
+            self.logger.info('Training:\tEpoch : %d\tTime : %.4fs\t Loss: %.5f' \
+                                % (epoch, time.time() - start_time, epoch_loss))
 
             if epoch < 5: # start to evaluate after some epochs
                 continue
+            start_time = time.time()
             dev_acc, dev_loss = self.decode(dev_loader, labeled=True, add_loss=True)
+            self.logger.info('Dev Evaluation:\tEpoch : %d\tTime : %.4fs\tLoss : %.5f\tAcc : %.4f' \
+                                % (epoch, time.time() - start_time, dev_loss, dev_acc))
             if dev_acc > self.history['dev_acc'] or (dev_acc == self.history['dev_acc'] and dev_loss < self.history['dev_loss']):
                 self.history['dev_acc'] = dev_acc
                 self.history['dev_loss'] = dev_loss
                 self.history['best_epoch'] = epoch
                 self.model.save_model(os.path.join(self.exp_path, 'model.pkl'))
-                self.logger.info('NEW BEST:\tEpoch : %d\tBest Valid Loss/Acc : %.4f/%.4f' % (epoch, dev_loss, dev_acc))
+                self.logger.warn('NEW BEST:\tEpoch : %d\tBest Valid Loss/Acc : %.4f/%.4f' % (epoch, dev_loss, dev_acc))
     
         self.model.load_model(os.path.join(self.exp_path, 'model.pkl'))
-        self.logger.info('FINAL BEST RESULT: \tEpoch : %d\tBest Valid (Loss: %.5f Acc : %.4f)' 
-                % (self.history['epoch'], self.history['dev_loss'], self.history['dev_acc']))
+        self.logger.error('FINAL BEST RESULT: \tEpoch : %d\tBest Valid (Loss: %.5f Acc : %.4f)' 
+                % (self.history['best_epoch'], self.history['dev_loss'], self.history['dev_acc']))
         test_file = os.path.join(self.exp_path, 'QNLI.tsv')
         test_results = self.decode(test_loader, labeled=False, add_loss=False)
         self.logger.info('Start writing test predictions to file %s ...' % (test_file))
         write_results(test_results, test_file)
 
-    def decode(data_loader, labeled=True, add_loss=False):
+    def decode(self, data_loader, labeled=True, add_loss=False):
         correct, predictions, total_loss = 0, [], 0.
         for data_zip in data_loader:
             self.model.eval()

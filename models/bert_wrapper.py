@@ -16,15 +16,14 @@ class BertBinaryClassification(nn.Module):
         self.bce = bce
         self.label_smoothing = label_smoothing
         self.reduction = reduction
+        self.classifier = nn.Linear(BERT_HIDDEN_SIZE[name], (1 if self.bce else 2))
         if self.label_smoothing > 0:
-            self.classifier = nn.Linear(BERT_HIDDEN_SIZE[name], (1 if self.bce else 2))
             self.loss_function = LabelSmoothingBCE(smoothing=label_smoothing, reduction=reduction)
         elif self.bce:
-            self.classifier = nn.Linear(BERT_HIDDEN_SIZE[name], 1)
             self.loss_function = set_bceloss(reduction=reduction)
         else:
-            self.classifier = nn.Linear(BERT_HIDDEN_SIZE[name], 2)
             self.loss_function = set_nllloss(reduction=reduction)
+        self.device = device
         self.set_bert_grad(bert_grad)
 
     def init_weights(self, initrange=0.1):
