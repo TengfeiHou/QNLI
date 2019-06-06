@@ -1,6 +1,14 @@
 ## **QNLI Task**
 
+update : This is a project I forked from another student in NLU class in SJTU. It cannot run. I asked author, but he not tell me. Perhaps according to the class rule it it not proper to share a project if it is a final project for a class.
+
+
+I think it is a good idea to look at source code about [BERT](https://github.com/huggingface/pytorch-pretrained-BERT), not too hard to run this to get pass of class :) after finetune, you can easily get 90+ point in GLUE website. Good Luck boddy
+
+
+
 ----
+the original README
 
 #### **Download data**
 
